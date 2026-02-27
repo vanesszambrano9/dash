@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d657e5f06f841b013e9c072664b7732",
+    "content-hash": "614784cde9e09954e574b8326a294d02",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -612,6 +612,66 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "francisco-paz/laravel-routingkit",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/franciscopazf/laravel-routingkit.git",
+                "reference": "1cebfbfc9135f37fdda2ace9cb532f9b7cda83aa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/franciscopazf/laravel-routingkit/zipball/1cebfbfc9135f37fdda2ace9cb532f9b7cda83aa",
+                "reference": "1cebfbfc9135f37fdda2ace9cb532f9b7cda83aa",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^10.0|^11.0|^12.0",
+                "illuminate/routing": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "laravel/prompts": "^0.1.24|^0.2|^0.3",
+                "php": "^8.1",
+                "spatie/laravel-permission": "^5.5|^6.0|^7.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^9.14",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "RkNavigation": "Rk\\RoutingKit\\Support\\Facades\\RkNavigation"
+                    },
+                    "providers": [
+                        "Rk\\RoutingKit\\RoutingKitServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Rk\\RoutingKit\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Francisco Paz",
+                    "email": "josepaz3123@gmail.com"
+                }
+            ],
+            "description": "Beta release of Routing Kit: a modular Laravel toolkit for full-featured route management, middleware resolution, permission handling, and interactive CLI navigation.",
+            "support": {
+                "issues": "https://github.com/franciscopazf/laravel-routingkit/issues",
+                "source": "https://github.com/franciscopazf/laravel-routingkit/tree/v1.0.0"
+            },
+            "time": "2025-09-26T23:20:15+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -3851,6 +3911,89 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "spatie/laravel-permission",
+            "version": "6.24.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-permission.git",
+                "reference": "eefc9d17eba80d023d6bff313f882cb2bcd691a3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/eefc9d17eba80d023d6bff313f882cb2bcd691a3",
+                "reference": "eefc9d17eba80d023d6bff313f882cb2bcd691a3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/auth": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/container": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/contracts": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/database": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/passport": "^11.0|^12.0",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^6.23|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.4|^10.1|^11.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Permission\\PermissionServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-main": "6.x-dev",
+                    "dev-master": "6.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Spatie\\Permission\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Permission handling for Laravel 8.0 and up",
+            "homepage": "https://github.com/spatie/laravel-permission",
+            "keywords": [
+                "acl",
+                "laravel",
+                "permission",
+                "permissions",
+                "rbac",
+                "roles",
+                "security",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-permission/issues",
+                "source": "https://github.com/spatie/laravel-permission/tree/6.24.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-02-09T21:10:03+00:00"
         },
         {
             "name": "symfony/clock",
