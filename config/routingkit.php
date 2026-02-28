@@ -162,17 +162,23 @@ return [
     */
 
     'navigators_file_path' => [
-
-        'default_file' => 'dashboard_navigators',
-        'items'        => [
-
+        'default_file' => 'rkNavigation',
+        'items' => [
+            'rkNavigation' => [
+                'path'              => base_path('routingkit/Navigation/rkNavigation.php'),
+                'support_file'      => "object_file_plain",
+                'only_string_support' => true,
+            ],
             'dashboard_navigators' => [
                 'path'              => base_path('routingkit/Navigation/rkNavigation.php'),
                 'support_file'      => "object_file_plain",
                 'only_string_support' => true,
             ],
-
-            // ...
+            'rk_footer' => [
+                'path'              => base_path('routingkit/Navigation/rkNavigation.php'),
+                'support_file'      => "object_file_plain",
+                'only_string_support' => true,
+            ],
         ]
     ],
 
