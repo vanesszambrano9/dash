@@ -24,6 +24,35 @@ return [
                 ])
                 ->setEndBlock('dashboard_module'),
 
+            RkNavigation::makeGroup('productos_group')
+                ->setParentId('dashboard_group')
+                ->setLabel('Productos')
+                ->setHeroIcon('shopping-bag')
+                ->setItems([
+
+                    RkNavigation::makeSimple('producto')
+                        ->setParentId('productos_group')
+                        ->setLabel('Productos')
+                        ->setHeroIcon('cube')
+                        ->setItems([])
+                        ->setEndBlock('producto'),
+
+                    RkNavigation::makeSimple('categoria')
+                        ->setParentId('productos_group')
+                        ->setLabel('Categorías')
+                        ->setHeroIcon('tag')
+                        ->setItems([])
+                        ->setEndBlock('categoria'),
+
+                    RkNavigation::makeSimple('proveedor')
+                        ->setParentId('productos_group')
+                        ->setLabel('Proveedores')
+                        ->setHeroIcon('truck')
+                        ->setItems([])
+                        ->setEndBlock('proveedor'),
+                ])
+                ->setEndBlock('productos_group'),
+
           
 
             RkNavigation::makeGroup('usuarios_permisos_group')

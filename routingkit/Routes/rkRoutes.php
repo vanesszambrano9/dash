@@ -58,6 +58,54 @@ return [
                 ->setItems([])
                 ->setEndBlock('sessionlist_p6D'),
 
+            RkRoute::make('categoria')
+                ->setParentId('productos_group')
+                ->setAccessPermission('producto.categoria')
+                ->setPermissions([
+                    'categoria.ver', 
+                    'categoria.editar', 
+                    'categoria.crear', 
+                    'categoria.eliminar', 
+                    'productos_group'
+                ])
+                ->setUrlMethod('get')
+                ->setUrlController('App\Livewire\Categoria\Categoria')
+                ->setRoles(['super_admin', 'admin'])
+                ->setItems([])
+                ->setEndBlock('categoria'),
+
+            RkRoute::make('proveedor')
+                ->setParentId('productos_group')
+                ->setAccessPermission('producto.proveedor')
+                ->setPermissions([
+                    'proveedor.ver', 
+                    'proveedor.editar', 
+                    'proveedor.crear', 
+                    'proveedor.eliminar', 
+                    'productos_group'
+                ])
+                ->setUrlMethod('get')
+                ->setUrlController('App\Livewire\Proveedor\Proveedor')
+                ->setRoles(['super_admin', 'admin'])
+                ->setItems([])
+                ->setEndBlock('proveedor'),
+
+             RkRoute::make('producto')
+                ->setParentId('productos_group')
+                ->setAccessPermission('producto.producto')
+                ->setPermissions([
+                    'producto.ver', 
+                    'producto.editar', 
+                    'producto.crear', 
+                    'producto.eliminar', 
+                    'productos_group'
+                ])
+                ->setUrlMethod('get')
+                ->setUrlController('App\Livewire\Producto\Producto')
+                ->setRoles(['super_admin', 'admin'])
+                ->setItems([])
+                ->setEndBlock('producto'),
+  
   
         ])
         ->setEndBlock('grupo_auth'),

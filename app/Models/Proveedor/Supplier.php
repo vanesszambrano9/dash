@@ -3,6 +3,8 @@
 namespace App\Models\Proveedor;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Producto\Product;
+use Illuminate\Database\Inventario\StockMovement;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Supplier extends Model
