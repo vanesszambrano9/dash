@@ -5,7 +5,7 @@ use Rk\RoutingKit\Entities\RkNavigation;
 return [
 
     RkNavigation::makeLink('ayuda')
-        ->setUrl('https://wa.me/+50497077088')
+        ->setUrl('https://wa.me/+50499217206')
         ->setLabel('Ayuda')
         ->setHeroIcon('question-mark-circle')
         ->setItems([])

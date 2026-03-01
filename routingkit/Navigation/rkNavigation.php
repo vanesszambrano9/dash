@@ -11,7 +11,7 @@ return [
 
             RkNavigation::makeGroup('dashboard_module')
                 ->setParentId('dashboard_group')
-                ->setLabel('Dashboard Group')
+                ->setLabel('Dashboard')
                 ->setHeroIcon('home')
                 ->setItems([
 
