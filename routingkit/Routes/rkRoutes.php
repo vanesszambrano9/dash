@@ -90,7 +90,7 @@ return [
                 ->setItems([])
                 ->setEndBlock('proveedor'),
 
-             RkRoute::make('producto')
+            RkRoute::make('producto')
                 ->setParentId('productos_group')
                 ->setAccessPermission('producto.producto')
                 ->setPermissions([
@@ -105,6 +105,84 @@ return [
                 ->setRoles(['super_admin', 'admin'])
                 ->setItems([])
                 ->setEndBlock('producto'),
+
+            RkRoute::make('menu-item')
+                ->setParentId('productos_group')
+                ->setAccessPermission('producto.menu-item')
+                ->setPermissions([
+                    'menu-item.ver', 
+                    'menu-item.editar', 
+                    'menu-item.crear', 
+                    'menu-item.eliminar', 
+                    'productos_group'
+                ])
+                ->setUrlMethod('get')
+                ->setUrlController('App\Livewire\Producto\MenuItem')
+                ->setRoles(['super_admin', 'admin'])
+                ->setItems([])
+                ->setEndBlock('menu-item'),
+    
+        // Ventas activas (cards)
+        // En tu archivo de configuración de rutas (ej: config/routes.php)
+
+        RkRoute::make('ventas')  // ← Nombre debe coincidir con navegación
+            ->setParentId('ventas_group')
+            ->setAccessPermission('venta.ventas.ver')
+            ->setPermissions([
+                'venta.ventas.ver',
+                'venta.ventas.crear',
+                'venta.ventas.editar',
+                'venta.ventas.eliminar',
+                'venta.ventas.cerrar',
+            ])
+            ->setUrlMethod('get')
+            ->setUrl('/ventas')  // ← URL explícita
+            ->setUrlController('App\Livewire\Venta\Sale')  // ← Tu componente Livewire
+            ->setRoles(['super_admin', 'admin', 'cajero'])
+            ->setItems([])
+        ->setEndBlock('ventas'),
+
+        RkRoute::make('ventas-historial')
+            ->setParentId('ventas_group')
+            ->setAccessPermission('venta.historial.ver')
+            ->setUrlMethod('get')
+            ->setUrl('/ventas/historial')
+            ->setUrlController('App\Livewire\Venta\SaleHistory')
+            ->setRoles(['super_admin', 'admin', 'cajero'])
+            ->setItems([])
+        ->setEndBlock('ventas-historial'),
+
+        RkRoute::make('venta-item')  
+            ->setParentId('ventas_group')
+            ->setAccessPermission('venta.item.gestionar')
+            ->setPermissions([
+                'venta.item.ver',
+                'venta.item.crear',
+                'venta.item.editar',
+                'venta.item.eliminar',
+            ])
+            ->setUrlMethod('get')
+            ->setUrl('/venta-item/{sale}')  
+            ->setUrlController('App\Livewire\Venta\SaleItem')
+            ->setRoles(['super_admin', 'admin', 'cajero'])
+            ->setItems([])
+        ->setEndBlock('venta-item'),
+            
+        RkRoute::make('inventario')
+            ->setParentId('inventario_group')
+            ->setAccessPermission('inventario.inventario')
+            ->setPermissions([
+                'inventario.ver', 
+                'inventario.editar', 
+                'inventario.crear', 
+                'inventario.eliminar', 
+                'inventario_group'
+            ])
+            ->setUrlMethod('get')
+            ->setUrlController('App\Livewire\Inventario\StockMovement')
+            ->setRoles(['super_admin', 'admin'])
+            ->setItems([])
+        ->setEndBlock('inventario'),
   
   
         ])

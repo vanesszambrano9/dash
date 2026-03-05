@@ -5,6 +5,9 @@ namespace App\Models\Inventario;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Models\Producto\Product;
+use App\Models\Proveedor\Supplier;
+
 class StockMovement extends Model
 {
     protected $fillable = [

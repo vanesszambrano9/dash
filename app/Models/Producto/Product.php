@@ -19,7 +19,6 @@ class Product extends Model
         'sku',
         'unit',
         'purchase_price',
-        'sale_price',
         'stock',
         'min_stock',
         'description',
@@ -28,7 +27,6 @@ class Product extends Model
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
-        'sale_price'     => 'decimal:2',
         'stock'          => 'decimal:2',
         'min_stock'      => 'decimal:2',
         'is_active'      => 'boolean',

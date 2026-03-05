@@ -4,6 +4,8 @@ namespace App\Models\Venta;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Producto\MenuItem;
+use App\Models\Venta\Sale;
 
 class SaleItem extends Model
 {

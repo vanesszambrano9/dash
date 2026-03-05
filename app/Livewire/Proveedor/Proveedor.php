@@ -185,7 +185,6 @@ class Proveedor extends Component implements HasActions, HasSchemas, HasTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    // Acciones masivas futuras
                 ]),
             ])
             ->emptyStateHeading('No hay proveedores registrados')

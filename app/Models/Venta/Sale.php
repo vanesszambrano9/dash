@@ -5,6 +5,7 @@ namespace App\Models\Venta;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use App\Models\Venta\SaleItem;
 
 class Sale extends Model
 {

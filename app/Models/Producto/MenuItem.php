@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Models\Producto\Product;
+use App\Models\Categoria\Category;
+use App\Models\Venta\SaleItem;
+
 class MenuItem extends Model
 {
     protected $fillable = [
-        'category_id',
+        'product_id', 
         'name',
         'description',
         'price',
@@ -24,14 +28,14 @@ class MenuItem extends Model
 
     // ── Relaciones ──────────────────────────────
 
-    public function category(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function saleItems(): HasMany
     {
-        return $this->hasMany(SaleItem::class);
+        return $this->hasMany(SaleItem::class, 'menu_item_id');
     }
 
     // ── Scopes ──────────────────────────────────
@@ -48,7 +52,12 @@ class MenuItem extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        return '$' . number_format($this->price, 2);
+        return 'L ' . number_format($this->price, 2, '.', ',');
+    }
+
+    public function getCategoryAttribute(): ?Category
+    {
+        return $this->product?->category;
     }
 
     /**
@@ -57,5 +66,10 @@ class MenuItem extends Model
     public function getTotalSoldAttribute(): int
     {
         return $this->saleItems()->sum('quantity');
+    }
+
+    public function getMarginAttribute(): float
+    {
+        return $this->price - ($this->product?->purchase_price ?? 0);
     }
 }

@@ -19,11 +19,13 @@ return new class extends Migration
             $table->string('sku')->unique()->nullable();     // Código interno
             $table->string('unit');                          // pieza, litro, kg, caja, botella
             $table->decimal('purchase_price', 10, 2);        // Precio al que se compra
-            $table->decimal('sale_price', 10, 2)->nullable();// Precio al que se vende
             $table->decimal('stock', 10, 2)->default(0);     // Stock actual
             $table->decimal('min_stock', 10, 2)->default(5); // Alerta de stock mínimo
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
+
+            $table->index(['category_id', 'is_active']);
+            $table->index('sku');
             $table->timestamps();
         });
     }

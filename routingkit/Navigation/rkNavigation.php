@@ -20,7 +20,7 @@ return [
                         ->setLabel('Dashboard')
                         ->setHeroIcon('plus')
                         ->setItems([])
-                        ->setEndBlock('dashboard'),
+                    ->setEndBlock('dashboard'),
                 ])
                 ->setEndBlock('dashboard_module'),
 
@@ -35,62 +35,72 @@ return [
                         ->setLabel('Productos')
                         ->setHeroIcon('cube')
                         ->setItems([])
-                        ->setEndBlock('producto'),
+                    ->setEndBlock('producto'),
+                    
+                    RkNavigation::makeSimple('menu-item')
+                        ->setParentId('productos_group')
+                        ->setLabel('Menú')
+                        ->setHeroIcon('queue-list')
+                        ->setItems([])
+                    ->setEndBlock('menu-item'),
 
                     RkNavigation::makeSimple('categoria')
                         ->setParentId('productos_group')
                         ->setLabel('Categorías')
                         ->setHeroIcon('tag')
                         ->setItems([])
-                        ->setEndBlock('categoria'),
+                    ->setEndBlock('categoria'),
 
                     RkNavigation::makeSimple('proveedor')
                         ->setParentId('productos_group')
                         ->setLabel('Proveedores')
                         ->setHeroIcon('truck')
                         ->setItems([])
-                        ->setEndBlock('proveedor'),
+                    ->setEndBlock('proveedor'),
                 ])
                 ->setEndBlock('productos_group'),
 
-          
-
-            RkNavigation::makeGroup('usuarios_permisos_group')
+            RkNavigation::makeGroup('ventas_group')
                 ->setParentId('dashboard_group')
-                ->setLabel('Acceso')
-                ->setHeroIcon('users')
+                ->setLabel('Ventas')
+                ->setHeroIcon('document-currency-dollar')
                 ->setItems([
 
-                    RkNavigation::make('userlist_Iac')
-                        ->setParentId('usuarios_permisos_group')
-                        ->setLabel('Listado de Usuarios')
-                        ->setHeroIcon('user')
+                    RkNavigation::makeSimple('ventas')
+                        ->setParentId('ventas_group')
+                        ->setLabel('Ventas Activas')
+                        ->setHeroIcon('currency-dollar')
+                        ->setUrl('/ventas')  // ← Agregar URL explícita
                         ->setItems([])
-                        ->setEndBlock('userlist_Iac'),
+                    ->setEndBlock('ventas'),
 
-                    RkNavigation::make('list_roles')
-                        ->setParentId('usuarios_permisos_group')
-                        ->setLabel('Listado de Roles')
-                        ->setHeroIcon('key')
+                    RkNavigation::makeSimple('ventas-historial')
+                        ->setParentId('ventas_group')
+                        ->setLabel('Historial de Ventas')
+                        ->setHeroIcon('clipboard-document-list')
+                        ->setUrl('/ventas/historial')
                         ->setItems([])
-                        ->setEndBlock('list_roles'),
+                    ->setEndBlock('ventas-historial'),
 
-                    RkNavigation::make('list_permissions')
-                        ->setParentId('usuarios_permisos_group')
-                        ->setLabel('Listado de Permisos')
-                        ->setHeroIcon('lock-closed')
-                        ->setItems([])
-                        ->setEndBlock('list_permissions'),
-
-                    RkNavigation::make('sessionlist_p6D')
-                        ->setParentId('usuarios_permisos_group')
-                        ->setLabel('Sesiones Activas')
-                        ->setBageInt(1)
-                        ->setHeroIcon('computer-desktop')
-                        ->setItems([])
-                        ->setEndBlock('sessionlist_p6D'),
                 ])
-                ->setEndBlock('usuarios_permisos_group'),
+            ->setEndBlock('ventas_group'),
+
+            RkNavigation::makeGroup('inventario_group')
+                ->setParentId('dashboard_group')
+                ->setLabel('Inventario')
+                ->setHeroIcon('archive-box')
+                ->setItems([
+
+                    RkNavigation::makeSimple('inventario')
+                        ->setParentId('inventario_group')
+                        ->setLabel('Inventario')
+                        ->setHeroIcon('archive-box')
+                        ->setItems([])
+                    ->setEndBlock('inventario'),
+
+                ])
+            ->setEndBlock('inventario_group'),
+
         ])
         ->setEndBlock('dashboard_group'),
 ];

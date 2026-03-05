@@ -17,16 +17,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Field;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
@@ -47,7 +44,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
             Select::make('category_id')
                 ->label('Categoría')
                 ->required()
-                ->options(fn() => \App\Models\Categoria\Category::active()->pluck('name', 'id'))
+                ->options(fn() => Category::active()->pluck('name', 'id'))
                 ->searchable()
                 ->preload()
                 ->placeholder('Selecciona una categoría'),
@@ -55,7 +52,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
             Select::make('supplier_id')
                 ->label('Proveedor')
                 ->nullable()
-                ->options(fn() => \App\Models\Proveedor\Supplier::active()->pluck('name', 'id'))
+                ->options(fn() => Supplier::active()->pluck('name', 'id'))
                 ->searchable()
                 ->preload()
                 ->placeholder('Selecciona un proveedor (opcional)'),
@@ -64,14 +61,14 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                 ->label('Nombre del Producto')
                 ->required()
                 ->maxLength(255)
-                ->placeholder('Ej: Harina de Trigo Premium'),
+                ->placeholder('Ej: Camarón fresco, Cerveza Corona 355ml'),
 
             TextInput::make('sku')
                 ->label('SKU / Código Interno')
                 ->nullable()
                 ->unique(ignoreRecord: true)
                 ->maxLength(100)
-                ->placeholder('Ej: HAR-TRI-001'),
+                ->placeholder('Ej: CAM-FRE-001'),
 
             Select::make('unit')
                 ->label('Unidad de Medida')
@@ -93,22 +90,14 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                 ->native(false),
 
             TextInput::make('purchase_price')
-                ->label('Precio de Compra')
+                ->label('Precio de Compra (Costo)')
                 ->required()
                 ->numeric()
-                ->prefix('$')
+                ->prefix('L')  // Lempiras
                 ->step(0.01)
                 ->minValue(0)
-                ->placeholder('0.00'),
-
-            TextInput::make('sale_price')
-                ->label('Precio de Venta')
-                ->nullable()
-                ->numeric()
-                ->prefix('$')
-                ->step(0.01)
-                ->minValue(0)
-                ->placeholder('0.00'),
+                ->placeholder('0.00')
+                ->helperText('Lo que pagas al proveedor por este producto'),
 
             TextInput::make('stock')
                 ->label('Stock Actual')
@@ -118,7 +107,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                 ->default(0)
                 ->step(0.01)
                 ->disabled(fn($record) => $record?->id === null) 
-                ->helperText('Se gestiona automáticamente mediante movimientos de inventario'),
+                ->helperText('Se gestiona mediante movimientos de inventario'),
 
             TextInput::make('min_stock')
                 ->label('Stock Mínimo (Alerta)')
@@ -127,19 +116,19 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                 ->minValue(0)
                 ->default(5)
                 ->step(0.01)
-                ->helperText('Recibirás alertas cuando el stock esté por debajo de este valor'),
+                ->helperText('Alerta cuando stock ≤ este valor'),
 
             Textarea::make('description')
                 ->label('Descripción')
                 ->nullable()
                 ->maxLength(1000)
                 ->rows(3)
-                ->placeholder('Detalles adicionales del producto...'),
+                ->placeholder('Detalles internos del producto...'),
 
             Toggle::make('is_active')
                 ->label('Producto Activo')
                 ->default(true)
-                ->helperText('Desactiva para ocultar en ventas sin eliminar historial'),
+                ->helperText('Desactiva para ocultar en menús sin eliminar historial'),
         ];
     }
 
@@ -181,14 +170,8 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                     ->toggleable(),
 
                 TextColumn::make('purchase_price')
-                    ->label('Precio Compra')
-                    ->money('MXN')
-                    ->sortable()
-                    ->toggleable(),
-
-                TextColumn::make('sale_price')
-                    ->label('Precio Venta')
-                    ->money('MXN')
+                    ->label('Costo Unit.')
+                    ->formatStateUsing(fn($state) => 'L ' . number_format($state, 2, '.', ','))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
@@ -211,7 +194,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                     ->falseIcon('heroicon-o-check-circle')
                     ->trueColor('warning')
                     ->falseColor('success')
-                    ->tooltip(fn($record) => $record->is_low_stock ? '⚠️ Stock bajo' : '✅ Stock adecuado'),
+                    ->tooltip(fn($record) => $record->is_low_stock ? 'Stock bajo' : 'Stock adecuado'),
 
                 IconColumn::make('is_active')
                     ->label('Activo')
@@ -227,16 +210,13 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-               
+                
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([
                 CreateAction::make()
                     ->label('Nuevo Producto')
                     ->form($this->createOrEditForm())
-                    ->successNotificationTitle('Producto creado exitosamente')
-                    ->after(function ($record, $data) {
-                        // Si necesitas inicializar algo tras crear
-                    }),
+                    ->successNotificationTitle('Producto creado exitosamente'),
             ])
             ->recordActions([
                 ActionGroup::make([
@@ -263,7 +243,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    // Ejemplo futuro: BulkAction::make('activate')->action(...)
+                    // Acciones masivas futuras
                 ]),
             ])
             ->emptyStateHeading('No hay productos registrados')

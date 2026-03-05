@@ -13,13 +13,17 @@ return new class extends Migration
     {
         Schema::create('menu_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->restrictOnDelete();
+            $table->foreignId('product_id') ->nullable()->constrained('products')->nullOnDelete();
             $table->string('name');                          // "Ceviche de camarón", "Caguama XX"
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);                 // Precio de venta al cliente
             $table->string('image')->nullable();
             $table->boolean('is_available')->default(true);  // Si está en el menú activo
             $table->timestamps();
+
+            // Índices para optimizar consultas
+            $table->index('product_id');
+            $table->index(['is_available', 'price']);
         });
     }
 
