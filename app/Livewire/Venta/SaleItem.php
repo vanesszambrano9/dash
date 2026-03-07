@@ -183,7 +183,17 @@ class SaleItem extends Component implements HasActions, HasSchemas, HasTable
                     ->form($this->createOrEditForm())
                     ->action(function (array $data): void {
                         $data['sale_id'] = $this->saleId;
-                        SaleItemModel::create($data);
+                        $item = SaleItemModel::create($data);
+
+                        // Descontar stock del producto
+                        $product = $item->menuItem?->product;
+                        if ($product) {
+                            $product->decreaseStock(
+                                quantity: (float) $item->quantity,
+                                type: 'sale',
+                                reason: 'Venta #' . $this->saleId . ' - Item #' . $item->id
+                            );
+                        }
                     })
                     ->successNotificationTitle('Ítem agregado a la venta')
                     ->after(function () {
@@ -196,6 +206,30 @@ class SaleItem extends Component implements HasActions, HasSchemas, HasTable
                         ->label('Editar')
                         ->icon('heroicon-o-pencil')
                         ->form($this->createOrEditForm())
+                        ->action(function (SaleItemModel $record, array $data): void {
+                            $oldQuantity = (float) $record->quantity;
+                            $record->update($data);
+                            $newQuantity = (float) $record->fresh()->quantity;
+
+                            // Ajustar stock si cambió la cantidad
+                            $product = $record->menuItem?->product;
+                            if ($product && $oldQuantity !== $newQuantity) {
+                                $diff = $newQuantity - $oldQuantity;
+                                if ($diff > 0) {
+                                    $product->decreaseStock(
+                                        quantity: $diff,
+                                        type: 'sale',
+                                        reason: 'Edición venta #' . $record->sale_id . ' - Item #' . $record->id
+                                    );
+                                } else {
+                                    $product->increaseStock(
+                                        quantity: abs($diff),
+                                        type: 'adjustment',
+                                        reason: 'Edición venta #' . $record->sale_id . ' - Item #' . $record->id
+                                    );
+                                }
+                            }
+                        })
                         ->successNotificationTitle('Ítem actualizado')
                         ->after(function ($record) {
                             $this->dispatch('sale-items-updated', saleId: $record->sale_id);
@@ -206,7 +240,21 @@ class SaleItem extends Component implements HasActions, HasSchemas, HasTable
                         ->icon('heroicon-o-trash')
                         ->requiresConfirmation()
                         ->modalHeading('¿Eliminar ítem?')
-                        ->modalDescription(fn($record) => "¿Quitar **{$record->menuItem?->name}** de esta venta?")
+                        ->modalDescription(fn($record) => '¿Quitar ' . ($record->menuItem?->name ?? 'ítem') . ' de esta venta?')
+                        ->action(function (SaleItemModel $record): void {
+                            $product = $record->menuItem?->product;
+                            $quantity = (float) $record->quantity;
+                            $record->delete();
+
+                            // Restaurar stock al eliminar
+                            if ($product) {
+                                $product->increaseStock(
+                                    quantity: $quantity,
+                                    type: 'adjustment',
+                                    reason: 'Eliminación item venta #' . $record->sale_id
+                                );
+                            }
+                        })
                         ->successNotificationTitle('Ítem eliminado')
                         ->after(function ($record) {
                             $this->dispatch('sale-items-updated', saleId: $record->sale_id);

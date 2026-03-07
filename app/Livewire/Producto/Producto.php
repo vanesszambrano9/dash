@@ -93,7 +93,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                 ->label('Precio de Compra (Costo)')
                 ->required()
                 ->numeric()
-                ->prefix('L')  // Lempiras
+                ->prefix('L')
                 ->step(0.01)
                 ->minValue(0)
                 ->placeholder('0.00')
@@ -209,9 +209,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                
-            ], layout: FiltersLayout::AboveContent)
+            ->filters([], layout: FiltersLayout::AboveContent)
             ->headerActions([
                 CreateAction::make()
                     ->label('Nuevo Producto')
@@ -242,9 +240,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                 ])->button()->label('Acciones'),
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    // Acciones masivas futuras
-                ]),
+                BulkActionGroup::make([]),
             ])
             ->emptyStateHeading('No hay productos registrados')
             ->emptyStateDescription('Comienza agregando tu primer producto al inventario.')

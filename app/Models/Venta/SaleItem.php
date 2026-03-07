@@ -28,6 +28,9 @@ class SaleItem extends Model
 
     protected static function booted(): void
     {
+        // Stock management is handled explicitly in the Livewire SaleItem component actions
+        // to ensure reliability within Filament action transactions.
+
         /**
          * Al crear un item, copia el precio actual del platillo
          * y calcula el subtotal automáticamente.

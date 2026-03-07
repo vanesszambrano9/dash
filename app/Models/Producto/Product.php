@@ -110,4 +110,32 @@ class Product extends Model
             'reason'       => $reason,
         ]);
     }
+
+    /**
+     * Ajusta el stock con cantidad positiva o negativa.
+     * 
+     * @param float $quantity Cantidad a ajustar (positiva = agregar, negativa = quitar)
+     * @param string $type Tipo de movimiento: 'sale_adjustment', 'inventory_correction', etc.
+     * @param string|null $reason Motivo del ajuste
+     */
+    public function adjustStock(float $quantity, string $type = 'adjustment', ?string $reason = null): StockMovement
+    {
+        $before = $this->stock;
+        $after = $before + $quantity;
+        
+        // Evitar stock negativo
+        if ($after < 0) {
+            throw new \Exception("No se puede ajustar el stock de '{$this->name}' a negativo. Stock actual: {$before}, ajuste: {$quantity}");
+        }
+        
+        $this->update(['stock' => $after]);
+        
+        return $this->stockMovements()->create([
+            'type'         => $type,
+            'quantity'     => $quantity,
+            'stock_before' => $before,
+            'stock_after'  => $after,
+            'reason'       => $reason,
+        ]);
+    }
 }

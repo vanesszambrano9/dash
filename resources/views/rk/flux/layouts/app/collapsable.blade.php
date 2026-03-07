@@ -198,6 +198,7 @@
 
     @fluxScripts
     @livewire('notifications')
+    @stack('scripts')
 </body>
 
 </html>

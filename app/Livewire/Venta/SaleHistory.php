@@ -169,7 +169,7 @@ class SaleHistory extends Component implements HasActions, HasSchemas, HasTable
                     ViewAction::make()
                         ->label('Ver Detalles')
                         ->icon('heroicon-o-eye')
-                        ->modalHeading('Detalles de Venta #{{ $record->folio }}')
+                        ->modalHeading('Detalles de Venta')
                         ->modalContent(function (SaleModel $record): View {
                             return view('livewire.Venta.sale-history-view', ['sale' => $record]);
                         }),

@@ -18,7 +18,7 @@ return [
                     RkNavigation::makeSimple('dashboard')
                         ->setParentId('dashboard_module')
                         ->setLabel('Dashboard')
-                        ->setHeroIcon('plus')
+                        ->setHeroIcon('arrow-trending-up')
                         ->setItems([])
                     ->setEndBlock('dashboard'),
                 ])
@@ -71,7 +71,15 @@ return [
                         ->setLabel('Ventas Activas')
                         ->setHeroIcon('currency-dollar')
                         ->setUrl('/ventas')  // ← Agregar URL explícita
-                        ->setItems([])
+                        ->setItems([
+                        RkNavigation::makeSimple('venta-item')
+                            ->setParentId('ventas_group')
+                            ->setLabel('Item Venta')
+                            ->setHeroIcon('plus')
+                            ->setUrl('/ventas')  // ← Agregar URL explícita
+                            ->setItems([])
+                        ->setEndBlock('ventas'),
+                        ])
                     ->setEndBlock('ventas'),
 
                     RkNavigation::makeSimple('ventas-historial')
