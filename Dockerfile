@@ -1,7 +1,8 @@
 FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
-    libicu-dev libzip-dev libxml2-dev curl unzip nodejs npm \
+    libicu-dev libzip-dev libxml2-dev libonig-dev \
+    curl unzip git nodejs npm \
     && docker-php-ext-install pdo pdo_mysql mbstring xml zip intl \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
