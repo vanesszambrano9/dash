@@ -13,3 +13,10 @@ Route::get('/', function () {
 
 
 require __DIR__.'/settings.php';
+Route::get('/debug', function () {
+    return [
+        'app_key' => config('app.key') ? 'SET' : 'MISSING',
+        'db' => DB::connection()->getPdo() ? 'CONNECTED' : 'FAILED',
+        'env' => app()->environment(),
+    ];
+});
