@@ -170,7 +170,7 @@ class StockMovement extends Component implements HasActions, HasSchemas, HasTabl
                 TextColumn::make('quantity')
                     ->label('Cantidad')
                     ->formatStateUsing(fn($record) => 
-                        ($record->quantity > 0 ? '+' : '') . number_format($record->quantity, 3)
+                        ($record->quantity > 0 ? '+' : '') . number_format($record->quantity, 0)
                     )
                     ->color(fn($record) => $record->quantity > 0 ? 'success' : 'danger')
                     ->weight(fn($record) => $record->quantity > 0 ? 'bold' : 'normal')

@@ -16,6 +16,7 @@ class Sale extends Model
         'discount',
         'total',
         'payment_method',
+        'transfer_reference',
         'status',
         'notes',
         'closed_at',
@@ -118,14 +119,15 @@ class Sale extends Model
     /**
      * Cierra la venta.
      */
-    public function close(string $paymentMethod = 'cash'): void
+    public function close(string $paymentMethod = 'cash', ?string $transferReference = null): void
     {
         $this->recalculate();
 
         $this->update([
-            'status'         => 'closed',
-            'payment_method' => $paymentMethod,
-            'closed_at'      => now(),
+            'status'             => 'closed',
+            'payment_method'     => $paymentMethod,
+            'transfer_reference' => $paymentMethod === 'transfer' ? $transferReference : null,
+            'closed_at'          => now(),
         ]);
     }
 

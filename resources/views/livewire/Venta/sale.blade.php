@@ -176,7 +176,7 @@
                                 />
                                 <div x-show="open" x-cloak
                                     class="absolute right-0 mt-1 w-48 bg-white dark:bg-zinc-900 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1 z-10">
-                                    <button wire:click="closeSale({{ $sale->id }}, 'cash')" wire:confirm="¿Cerrar con efectivo?"
+                                    <button wire:click="openCloseModal({{ $sale->id }})"
                                         class="w-full text-left px-4 py-2 text-sm text-emerald-700 dark:text-emerald-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 flex items-center gap-2">
                                         <x-heroicon-o-check-circle class="w-4 h-4" /> Cerrar
                                     </button>
@@ -200,4 +200,71 @@
         <!-- Paginación -->
         <div class="mt-6">{{ $sales->links() }}</div>
     @endif
+
+    <!-- Modal Cerrar Venta -->
+    @if($showCloseModal)
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-zinc-900/75 dark:bg-zinc-950/75" wire:click="resetCloseModal"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-white dark:bg-zinc-900 rounded-xl shadow-xl max-w-md w-full p-6 border border-zinc-200 dark:border-zinc-700">
+
+                <div class="flex items-center justify-between mb-6">
+                    <flux:heading size="lg">Cerrar Venta</flux:heading>
+                    <flux:button wire:click="resetCloseModal" variant="ghost" icon="x-mark" size="sm" />
+                </div>
+
+                <form wire:submit.prevent="confirmCloseSale" class="space-y-4">
+
+                    <flux:field>
+                        <flux:label>Método de Pago</flux:label>
+                        <flux:select wire:model.live="closePaymentMethod">
+                            <option value="cash">Efectivo</option>
+                            <option value="card">Tarjeta</option>
+                            <option value="transfer">Transferencia</option>
+                        </flux:select>
+                        @error('closePaymentMethod')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                    </flux:field>
+
+                    @if($closePaymentMethod === 'transfer')
+                    <flux:field>
+                        <flux:label>ID / Referencia de Transferencia</flux:label>
+                        <flux:input
+                            wire:model="closeTransferReference"
+                            maxlength="100"
+                            placeholder="Ej: TRF-2026-001234"
+                            autofocus
+                        />
+                        @error('closeTransferReference')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                        <flux:description>Ingresa el número de comprobante o referencia.</flux:description>
+                    </flux:field>
+                    @endif
+
+                    @if($errors->has('closePaymentMethod') || $errors->has('closeTransferReference'))
+                    <div class="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3">
+                        <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400">
+                            @foreach($errors->only(['closePaymentMethod','closeTransferReference']) as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
+                    <div class="flex justify-end gap-3 pt-2">
+                        <flux:button type="button" wire:click="resetCloseModal" variant="ghost">
+                            Cancelar
+                        </flux:button>
+                        <flux:button type="submit" variant="primary" icon="check-circle">
+                            Confirmar Cierre
+                        </flux:button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>

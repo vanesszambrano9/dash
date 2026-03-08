@@ -93,7 +93,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
         box-shadow: 0 8px 24px rgba(8, 145, 178, 0.35);
         transition: transform 0.2s, box-shadow 0.2s;
         margin: 0 auto;
@@ -125,7 +124,9 @@
 
     {{-- Logo --}}
     <div class="mb-7 text-center z-10">
-        <div class="logo-badge">🐟</div>
+        <div class="logo-badge">
+            <x-heroicon-s-building-storefront class="w-8 h-8 text-white" />
+        </div>
         <p class="mt-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400 tracking-widest uppercase">StockMaster</p>
     </div>
 

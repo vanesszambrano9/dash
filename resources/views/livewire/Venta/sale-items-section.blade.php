@@ -37,7 +37,7 @@
         </script>
     @else
         <div class="p-4 text-center text-gray-500 bg-gray-50 rounded border">
-            💡 Guarda la venta primero para poder agregar ítems.
+             Guarda la venta primero para poder agregar ítems.
         </div>
     @endif
 </div>

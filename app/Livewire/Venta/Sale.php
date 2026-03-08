@@ -40,6 +40,12 @@ class Sale extends Component implements HasActions, HasSchemas
         'notes' => null,
     ];
 
+    // Propiedades para el modal de cierre
+    public bool $showCloseModal = false;
+    public ?int $closingSaleId = null;
+    public string $closePaymentMethod = 'cash';
+    public ?string $closeTransferReference = null;
+
     public function createOrEditForm(): array
     {
         return [
@@ -187,6 +193,42 @@ class Sale extends Component implements HasActions, HasSchemas
 
         session()->flash('success', 'Venta creada exitosamente');
         $this->resetForm();
+        $this->dispatch('$refresh');
+    }
+
+    public function openCloseModal(int $saleId): void
+    {
+        $this->closingSaleId = $saleId;
+        $this->closePaymentMethod = 'cash';
+        $this->closeTransferReference = null;
+        $this->showCloseModal = true;
+    }
+
+    public function resetCloseModal(): void
+    {
+        $this->showCloseModal = false;
+        $this->closingSaleId = null;
+        $this->closePaymentMethod = 'cash';
+        $this->closeTransferReference = null;
+    }
+
+    public function confirmCloseSale(): void
+    {
+        $this->validate([
+            'closePaymentMethod'     => 'required|in:cash,card,transfer',
+            'closeTransferReference' => 'nullable|string|max:100|' .
+                ($this->closePaymentMethod === 'transfer' ? 'required' : ''),
+        ], [
+            'closeTransferReference.required' => 'El ID de transferencia es obligatorio.',
+        ]);
+
+        $sale = SaleModel::findOrFail($this->closingSaleId);
+        if ($sale->status === 'open') {
+            $sale->close($this->closePaymentMethod, $this->closeTransferReference);
+            session()->flash('success', 'Venta cerrada exitosamente');
+        }
+
+        $this->resetCloseModal();
         $this->dispatch('$refresh');
     }
 

@@ -76,6 +76,7 @@ class Producto extends Component implements HasActions, HasSchemas, HasTable
                 ->options([
                     'pieza'   => 'Pieza',
                     'litro'   => 'Litro',
+                    'libra'   => 'Libra',
                     'ml'      => 'Mililitro',
                     'kg'      => 'Kilogramo',
                     'g'       => 'Gramo',

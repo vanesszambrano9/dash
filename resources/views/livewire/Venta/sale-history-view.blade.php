@@ -62,7 +62,7 @@
             <span>Total:</span>
             <span>L {{ number_format($sale->total, 2) }}</span>
         </div>
-        <div class="flex items-center gap-2 pt-2">
+        <div class="flex items-center gap-2 pt-2 flex-wrap">
             <flux:badge color="zinc" size="sm" icon="credit-card">
                 {{ match($sale->payment_method) {
                     'cash'     => 'Efectivo',
@@ -77,6 +77,14 @@
                 </flux:badge>
             @endif
         </div>
+        @if($sale->payment_method === 'transfer' && $sale->transfer_reference)
+        <div class="flex items-center gap-2 pt-1">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">Ref. transferencia:</span>
+            <flux:badge color="blue" size="sm" icon="hashtag">
+                {{ $sale->transfer_reference }}
+            </flux:badge>
+        </div>
+        @endif
     </div>
 
     <!-- Notas -->
