@@ -54,8 +54,8 @@
         </div>
         @if($sale->discount > 0)
         <div class="flex justify-between text-sm text-amber-600 dark:text-amber-400">
-            <span>Descuento:</span>
-            <span>- L {{ number_format($sale->discount, 2) }}</span>
+            <span>Descuento{{ ($sale->discount_type ?? 'amount') === 'percentage' ? ' ('.$sale->discount.'%)' : '' }}:</span>
+            <span>- L {{ number_format($sale->discount_amount, 2) }}</span>
         </div>
         @endif
         <div class="flex justify-between font-bold text-base text-cyan-600 dark:text-cyan-400 pt-2 border-t border-zinc-200 dark:border-zinc-700">
