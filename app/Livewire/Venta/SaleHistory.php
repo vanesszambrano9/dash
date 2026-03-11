@@ -20,8 +20,6 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
@@ -98,31 +96,35 @@ class SaleHistory extends Component implements HasActions, HasSchemas, HasTable
                     ->color('success')
                     ->weight('bold'),
 
-                BadgeColumn::make('payment_method')
+                TextColumn::make('payment_method')
                     ->label('Pago')
+                    ->badge()
                     ->formatStateUsing(fn($state) => match($state) {
                         'cash' => 'Efectivo',
                         'card' => 'Tarjeta',
                         'transfer' => 'Transferencia',
                         default => $state,
                     })
-                    ->colors([
-                        'success' => 'cash',
-                        'info' => 'card',
-                        'warning' => 'transfer',
-                    ]),
+                    ->color(fn($state) => match($state) {
+                        'cash'     => 'success',
+                        'card'     => 'info',
+                        'transfer' => 'warning',
+                        default    => 'gray',
+                    }),
 
-                BadgeColumn::make('status')
+                TextColumn::make('status')
                     ->label('Estado')
+                    ->badge()
                     ->formatStateUsing(fn($state) => match($state) {
-                        'closed' => 'Cerrada',
+                        'closed'    => 'Cerrada',
                         'cancelled' => 'Cancelada',
-                        default => $state,
+                        default     => $state,
                     })
-                    ->colors([
-                        'success' => 'closed',
-                        'danger' => 'cancelled',
-                    ]),
+                    ->color(fn($state) => match($state) {
+                        'closed'    => 'success',
+                        'cancelled' => 'danger',
+                        default     => 'gray',
+                    }),
 
                 TextColumn::make('closed_at')
                     ->label('Cerrada El')
@@ -149,8 +151,8 @@ class SaleHistory extends Component implements HasActions, HasSchemas, HasTable
                     ->columns(2) 
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->when($data['created_from'] ?? null, fn($q, $d) => $q->whereDate('created_at', '>=', $d))
-                            ->when($data['created_until'] ?? null, fn($q, $d) => $q->whereDate('created_at', '<=', $d));
+                            ->when($data['created_from'] ?? null, fn($q, $d) => $q->whereDate('closed_at', '>=', $d))
+                            ->when($data['created_until'] ?? null, fn($q, $d) => $q->whereDate('closed_at', '<=', $d));
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
@@ -162,8 +164,40 @@ class SaleHistory extends Component implements HasActions, HasSchemas, HasTable
                         }
                         return $indicators;
                     }),
+
+                SelectFilter::make('payment_method')
+                    ->label('Método de Pago')
+                    ->options([
+                        'cash'     => 'Efectivo',
+                        'card'     => 'Tarjeta',
+                        'transfer' => 'Transferencia',
+                    ])
+                    ->placeholder('Todos'),
+
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->options([
+                        'closed'    => 'Cerrada',
+                        'cancelled' => 'Cancelada',
+                    ])
+                    ->placeholder('Todos'),
             ], layout: FiltersLayout::AboveContent) 
-            ->headerActions([])
+            ->headerActions([
+                Action::make('export_csv')
+                    ->label('Exportar CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(function () {
+                        $f = $this->tableFilters ?? [];
+                        return route('ventas.historial.export.csv', array_filter([
+                            'desde'  => $f['date_range']['created_from'] ?? null,
+                            'hasta'  => $f['date_range']['created_until'] ?? null,
+                            'metodo' => $f['payment_method']['value'] ?? null,
+                            'estado' => $f['status']['value'] ?? null,
+                        ]));
+                    })
+                    ->openUrlInNewTab(false),
+            ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -183,7 +217,7 @@ class SaleHistory extends Component implements HasActions, HasSchemas, HasTable
                         ->modalHeading('¿Reabrir venta?')
                         ->modalDescription('La venta volverá a estado "Abierta" y podrá modificarse.')
                         ->action(function (SaleModel $record): void {
-                            $record->update(['status' => 'open']);
+                            $record->update(['status' => 'open', 'closed_at' => null]);
                         })
                         ->successNotificationTitle('Venta reabierta'),
 

@@ -19,6 +19,7 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 
@@ -33,11 +34,13 @@ class Sale extends Component implements HasActions, HasSchemas
 
     // Propiedades para el formulario de nueva venta
     public bool $showCreateModal = false;
+    public string $search = '';
     public array $formData = [
-        'table_number' => null,
+        'table_number'   => null,
         'payment_method' => 'cash',
-        'discount' => 0,
-        'notes' => null,
+        'discount'       => 0,
+        'discount_type'  => 'amount',
+        'notes'          => null,
     ];
 
     // Propiedades para el modal de cierre
@@ -135,7 +138,37 @@ class Sale extends Component implements HasActions, HasSchemas
         return SaleModel::query()
             ->where('status', 'open')
             ->withCount('items')
+            ->when($this->search, fn($q) => $q
+                ->where('folio', 'like', "%{$this->search}%")
+                ->orWhere('table_number', 'like', "%{$this->search}%")
+            )
             ->latest('created_at');
+    }
+
+    #[Computed]
+    public function ventasHoy(): int
+    {
+        return SaleModel::closed()->whereDate('closed_at', today())->count();
+    }
+
+    #[Computed]
+    public function totalHoy(): float
+    {
+        return (float) SaleModel::closed()->whereDate('closed_at', today())->sum('total');
+    }
+
+    #[Computed]
+    public function ticketPromedio(): float
+    {
+        $count = SaleModel::closed()->whereDate('closed_at', today())->count();
+        $total = (float) SaleModel::closed()->whereDate('closed_at', today())->sum('total');
+        return $count > 0 ? round($total / $count, 2) : 0;
+    }
+
+    #[Computed]
+    public function ventasActivas(): int
+    {
+        return SaleModel::open()->count();
     }
 
     public function render(): View
@@ -145,7 +178,11 @@ class Sale extends Component implements HasActions, HasSchemas
             ->withQueryString();
 
         return view('livewire.Venta.sale', [
-            'sales' => $sales,
+            'sales'          => $sales,
+            'ventasHoy'      => $this->ventasHoy,
+            'totalHoy'       => $this->totalHoy,
+            'ticketPromedio' => $this->ticketPromedio,
+            'ventasActivas'  => $this->ventasActivas,
         ]);
     }
 
@@ -158,10 +195,11 @@ class Sale extends Component implements HasActions, HasSchemas
     public function resetForm(): void
     {
         $this->formData = [
-            'table_number' => null,
+            'table_number'   => null,
             'payment_method' => 'cash',
-            'discount' => 0,
-            'notes' => null,
+            'discount'       => 0,
+            'discount_type'  => 'amount',
+            'notes'          => null,
         ];
         $this->showCreateModal = false;
         $this->resetErrorBag();
@@ -170,25 +208,22 @@ class Sale extends Component implements HasActions, HasSchemas
     public function createSale(): void
     {
         $validated = $this->validate([
-            'formData.table_number' => 'nullable|string|max:50',
+            'formData.table_number'   => 'nullable|string|max:50',
             'formData.payment_method' => 'required|in:cash,card,transfer',
-            'formData.discount' => 'nullable|numeric|min:0|max:999999.99',
-            'formData.notes' => 'nullable|string|max:1000',
+            'formData.discount'       => 'nullable|numeric|min:0|max:999999.99',
+            'formData.discount_type'  => 'required|in:amount,percentage',
+            'formData.notes'          => 'nullable|string|max:1000',
         ]);
 
-        // Generar folio automático: VTA-00001
-        $lastId = SaleModel::max('id') ?? 0;
-        $folio = 'VTA-' . str_pad($lastId + 1, 5, '0', STR_PAD_LEFT);
-
         SaleModel::create([
-            'folio' => $folio,
-            'table_number' => $validated['formData']['table_number'] ?? null,
+            'table_number'   => $validated['formData']['table_number'] ?? null,
             'payment_method' => $validated['formData']['payment_method'],
-            'status' => 'open',
-            'subtotal' => 0,
-            'discount' => $validated['formData']['discount'] ?? 0,
-            'total' => 0,
-            'notes' => $validated['formData']['notes'] ?? null,
+            'status'         => 'open',
+            'subtotal'       => 0,
+            'discount'       => $validated['formData']['discount'] ?? 0,
+            'discount_type'  => $validated['formData']['discount_type'] ?? 'amount',
+            'total'          => 0,
+            'notes'          => $validated['formData']['notes'] ?? null,
         ]);
 
         session()->flash('success', 'Venta creada exitosamente');
@@ -216,8 +251,11 @@ class Sale extends Component implements HasActions, HasSchemas
     {
         $this->validate([
             'closePaymentMethod'     => 'required|in:cash,card,transfer',
-            'closeTransferReference' => 'nullable|string|max:100|' .
-                ($this->closePaymentMethod === 'transfer' ? 'required' : ''),
+            'closeTransferReference' => [
+                $this->closePaymentMethod === 'transfer' ? 'required' : 'nullable',
+                'string',
+                'max:100',
+            ],
         ], [
             'closeTransferReference.required' => 'El ID de transferencia es obligatorio.',
         ]);
@@ -243,8 +281,18 @@ class Sale extends Component implements HasActions, HasSchemas
 
     public function cancelSale(int $saleId): void
     {
-        $sale = SaleModel::findOrFail($saleId);
+        $sale = SaleModel::with('items.menuItem.product')->findOrFail($saleId);
         if ($sale->status === 'open') {
+            foreach ($sale->items as $item) {
+                $product = $item->menuItem?->product;
+                if ($product && $item->quantity > 0) {
+                    $product->increaseStock(
+                        quantity: (float) $item->quantity,
+                        type: 'adjustment',
+                        reason: 'Cancelación venta ' . $sale->folio
+                    );
+                }
+            }
             $sale->cancel();
             $this->dispatch('$refresh');
         }
@@ -252,8 +300,18 @@ class Sale extends Component implements HasActions, HasSchemas
 
     public function deleteSale(int $saleId): void
     {
-        $sale = SaleModel::findOrFail($saleId);
+        $sale = SaleModel::with('items.menuItem.product')->findOrFail($saleId);
         if ($sale->status === 'open') {
+            foreach ($sale->items as $item) {
+                $product = $item->menuItem?->product;
+                if ($product && $item->quantity > 0) {
+                    $product->increaseStock(
+                        quantity: (float) $item->quantity,
+                        type: 'adjustment',
+                        reason: 'Eliminación venta ' . $sale->folio
+                    );
+                }
+            }
             $sale->delete();
             $this->dispatch('$refresh');
         }

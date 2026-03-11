@@ -1,18 +1,47 @@
 <div class="space-y-6" wire:poll.30s>
 
-    <!-- Header -->
+ <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
             <flux:subheading>Gestiona las ventas en progreso</flux:subheading>
         </div>
-        <div class="flex items-center gap-3">
-            <flux:badge color="yellow">{{ $sales->total() }} activas</flux:badge>
+        <div class="flex flex-wrap items-center gap-3">
+            <flux:badge color="yellow">{{ $sales->total() }} activa(s)</flux:badge>
             <flux:button wire:click="openCreateModal" icon="plus" variant="primary">
                 Nueva Venta
             </flux:button>
         </div>
     </div>
 
+    <!-- Widgets del día -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Ventas Hoy -->
+        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h1.5m-1.5 0h-1.5m-9 0H6m-1.5 0H3" /></svg>
+                </div>
+                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Ventas Hoy</p>
+            </div>
+            <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{{ $ventasHoy }}</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">cerradas hoy</p>
+        </div>
+
+        <!-- Total Hoy -->
+        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                </div>
+                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Total Hoy</p>
+            </div>
+            <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">L {{ number_format($totalHoy, 2) }}</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">recaudado hoy</p>
+        </div>
+    
+            <flux:input wire:model.live.debounce.300ms="search" placeholder="Folio o mesa..." icon="magnifying-glass" class="w-44" />
+    </div>
+    
     <!-- Modal de Nueva Venta -->
     @if($showCreateModal)
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -48,15 +77,41 @@
                     </flux:field>
 
                     <flux:field>
+                        <flux:label>Tipo de Descuento</flux:label>
+                        <div class="flex gap-4 mt-1">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" wire:model.live="formData.discount_type" value="amount" class="accent-cyan-600 dark:accent-cyan-400">
+                        <span class="text-sm text-zinc-700 dark:text-zinc-300">Monto fijo (L)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" wire:model.live="formData.discount_type" value="percentage" class="accent-cyan-600 dark:accent-cyan-400">
+                        <span class="text-sm text-zinc-700 dark:text-zinc-300">Porcentaje (%)</span>
+                    </label>
+                        </div>
+                    </flux:field>
+
+                    <flux:field>
                         <flux:label>Descuento</flux:label>
-                        <flux:input
-                            type="number"
-                            wire:model="formData.discount"
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                            prefix="L"
-                        />
+                        @if(($formData['discount_type'] ?? 'amount') === 'percentage')
+                            <flux:input
+                                type="number"
+                                wire:model="formData.discount"
+                                step="1"
+                                min="0"
+                                max="100"
+                                placeholder="0 - 100"
+                                suffix="%"
+                            />
+                        @else
+                            <flux:input
+                                type="number"
+                                wire:model="formData.discount"
+                                step="0.01"
+                                min="0"
+                                placeholder="0.00"
+                                prefix="L"
+                            />
+                        @endif
                     </flux:field>
 
                     <flux:field>
@@ -137,8 +192,8 @@
                             </div>
                             @if($sale->discount > 0)
                             <div class="flex justify-between text-amber-600 dark:text-amber-400">
-                                <span>Descuento:</span>
-                                <span>- L {{ number_format($sale->discount, 2) }}</span>
+                                <span>Dcto.{{ ($sale->discount_type ?? 'amount') === 'percentage' ? ' ('.$sale->discount.'%)' : '' }}:</span>
+                                <span>- L {{ number_format($sale->discount_amount, 2) }}</span>
                             </div>
                             @endif
                             <div class="flex justify-between font-bold text-base text-cyan-600 dark:text-cyan-400 border-t border-zinc-100 dark:border-zinc-800 pt-2 mt-1">
